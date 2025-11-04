@@ -12,8 +12,9 @@ export default function Subscription() {
   
   const createCheckoutMutation = trpc.subscription.createCheckout.useMutation({
     onSuccess: (data) => {
-      toast.info('Redirecionando para o checkout...');
-      window.open(data.url, '_blank');
+      toast.info('Redirecionando para o Mercado Pago...');
+      // Redirect to Mercado Pago checkout in the same tab
+      window.location.href = data.url;
     },
     onError: (error) => {
       toast.error(`Erro: ${error.message}`);

@@ -99,3 +99,15 @@
 - [ ] Implementar agendamento de anúncios
 - [ ] Adicionar relatórios exportáveis
 - [ ] Implementar notificações de performance
+
+
+## Migração para Mercado Pago
+- [x] Pesquisar API de assinaturas do Mercado Pago
+- [x] Criar módulo de integração com Mercado Pago
+- [x] Implementar criação de assinaturas
+- [x] Implementar webhook do Mercado Pago
+- [x] Atualizar routers para usar Mercado Pago
+- [x] Atualizar frontend para usar Mercado Pago
+- [ ] Remover dependências do Stripe (opcional)
+- [x] Testar fluxo completo de pagamento
+- [x] Atualizar documentação

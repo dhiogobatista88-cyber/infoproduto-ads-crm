@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import AdsList from "./pages/AdsList";
 import CreateAd from "./pages/CreateAd";
 import Subscription from "./pages/Subscription";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path={"/ads"} component={AdsList} />
       <Route path={"/ads/create"} component={CreateAd} />
       <Route path={"/subscription"} component={Subscription} />
+      <Route path={"/subscription/success"} component={SubscriptionSuccess} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -67,27 +67,33 @@ export const appRouter = router({
       };
     }),
 
-    // Create Stripe checkout session
+    // Create Mercado Pago checkout session
     createCheckout: protectedProcedure
       .input(z.object({ planId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const plan = await db.getSubscriptionPlanById(input.planId);
         if (!plan) throw new Error('Plan not found');
         
-        const { createCheckoutSession } = await import('./stripe');
+        const { createSubscription } = await import('./mercadopago');
         const origin = ctx.req.headers.origin || 'http://localhost:3000';
         
-        const session = await createCheckoutSession({
+        // Convert price from cents to BRL
+        const priceInBRL = plan.priceMonthly / 100;
+        
+        const subscription = await createSubscription({
           planId: plan.id,
           planName: plan.name,
-          priceMonthly: plan.priceMonthly,
+          priceMonthly: priceInBRL,
           userId: ctx.user.id,
           userEmail: ctx.user.email || '',
           userName: ctx.user.name || '',
           origin,
         });
         
-        return session;
+        return {
+          url: subscription.checkoutUrl,
+          subscriptionId: subscription.subscriptionId,
+        };
       }),
   }),
 
