@@ -37,6 +37,12 @@ async function startServer() {
   registerOAuthRoutes(app);
   
   // Mercado Pago webhook
+  app.post('/api/mercadopago/webhook', async (req, res) => {
+    const { handleMercadoPagoWebhook } = await import('../webhooks/mercadopago');
+    return handleMercadoPagoWebhook(req, res);
+  });
+  
+  // Alias para compatibilidade
   app.post('/api/webhooks/mercadopago', async (req, res) => {
     const { handleMercadoPagoWebhook } = await import('../webhooks/mercadopago');
     return handleMercadoPagoWebhook(req, res);
