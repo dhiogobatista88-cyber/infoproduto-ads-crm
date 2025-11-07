@@ -111,3 +111,8 @@
 - [ ] Remover dependências do Stripe (opcional)
 - [x] Testar fluxo completo de pagamento
 - [x] Atualizar documentação
+
+## Correção de Deploy no Render
+- [x] Corrigir servidor para servir arquivos estáticos do frontend
+- [x] Verificar se dist/public está sendo criado corretamente
+- [ ] Testar deploy no Render
