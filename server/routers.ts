@@ -11,6 +11,34 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    // Login de desenvolvimento para contornar problemas de OAuth
+    devLogin: publicProcedure.mutation(async ({ ctx }) => {
+      const DEV_USER_OPEN_ID = "dev-user-123";
+      const DEV_USER_NAME = "Desenvolvedor Teste";
+      const DEV_USER_EMAIL = "dev@adsmanager.ai";
+      const ONE_YEAR_MS = 31536000000; // 1 ano em ms
+
+      // 1. Cria ou atualiza o usuário de desenvolvimento no DB
+      await db.upsertUser({
+        openId: DEV_USER_OPEN_ID,
+        name: DEV_USER_NAME,
+        email: DEV_USER_EMAIL,
+        loginMethod: "dev",
+        lastSignedIn: new Date(),
+      });
+
+      // 2. Cria o token de sessão
+      const sessionToken = await ctx.sdk.createSessionToken(DEV_USER_OPEN_ID, {
+        name: DEV_USER_NAME,
+        expiresInMs: ONE_YEAR_MS,
+      });
+
+      // 3. Define o cookie de sessão
+      const cookieOptions = getSessionCookieOptions(ctx.req);
+      ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+      return { success: true, user: { openId: DEV_USER_OPEN_ID, name: DEV_USER_NAME } };
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
