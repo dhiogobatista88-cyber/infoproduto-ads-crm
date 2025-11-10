@@ -39,6 +39,26 @@ export const appRouter = router({
 
       return { success: true, user: { openId: DEV_USER_OPEN_ID, name: DEV_USER_NAME } };
     }),
+    register: publicProcedure
+      .input(z.object({
+        fullName: z.string().min(1, "Nome completo é obrigatório"),
+        phone: z.string().min(1, "Telefone é obrigatório"),
+        cpf: z.string().min(1, "CPF é obrigatório"),
+        email: z.string().email("E-mail inválido"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Aqui você pode salvar os dados do cadastro no banco de dados
+        // Por enquanto, apenas retornamos sucesso
+        // Quando o banco de dados estiver funcionando, você pode descomentar:
+        // await db.createUser({
+        //   name: input.fullName,
+        //   email: input.email,
+        //   phone: input.phone,
+        //   cpf: input.cpf,
+        // });
+        console.log("Novo cadastro:", input);
+        return { success: true, message: "Cadastro realizado com sucesso!" };
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

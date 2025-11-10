@@ -10,6 +10,7 @@ import CreateAd from "./pages/CreateAd";
 import Subscription from "./pages/Subscription";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import DevLogin from "./pages/DevLogin";
+import Register from "./pages/Register";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path={"/subscription"} component={Subscription} />
       <Route path={"/subscription/success"} component={SubscriptionSuccess} />
       <Route path={"/dev-login"} component={DevLogin} />
+      <Route path={"/register"} component={Register} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

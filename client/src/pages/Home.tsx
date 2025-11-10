@@ -57,7 +57,7 @@ export default function Home() {
             
             <div className="flex gap-4 justify-center">
               <Button size="lg" asChild className="text-lg px-8">
-                <a href={getLoginUrl()}>
+                <a href="/register">
                   Começar Agora
                 </a>
               </Button>
@@ -146,7 +146,7 @@ export default function Home() {
               Crie sua conta gratuitamente e comece a anunciar hoje mesmo.
             </p>
             <Button size="lg" variant="secondary" asChild className="text-lg px-8">
-              <a href={getLoginUrl()}>
+              <a href="/register">
                 Criar Conta Grátis
               </a>
             </Button>
