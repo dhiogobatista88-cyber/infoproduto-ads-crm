@@ -48,6 +48,12 @@ export const appRouter = router({
         password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
       }))
       .mutation(async ({ ctx, input }) => {
+        if (!ctx.sdk) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "SDK de autenticação não inicializado. Verifique a MANUS_API_KEY.",
+          });
+        }
         // Aqui você pode salvar os dados do cadastro no banco de dados
         // Por enquanto, apenas retornamos sucesso
         // Quando o banco de dados estiver funcionando, você pode descomentar:
@@ -66,6 +72,12 @@ export const appRouter = router({
         password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
       }))
       .mutation(async ({ ctx, input }) => {
+        if (!ctx.sdk) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "SDK de autenticação não inicializado. Verifique a MANUS_API_KEY.",
+          });
+        }
         console.log("Login attempt:", input.email);
         
         const sessionToken = await ctx.sdk.createSessionToken({
