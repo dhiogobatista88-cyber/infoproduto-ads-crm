@@ -45,6 +45,7 @@ export const appRouter = router({
         phone: z.string().min(1, "Telefone é obrigatório"),
         cpf: z.string().min(1, "CPF é obrigatório"),
         email: z.string().email("E-mail inválido"),
+        password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
       }))
       .mutation(async ({ ctx, input }) => {
         // Aqui você pode salvar os dados do cadastro no banco de dados

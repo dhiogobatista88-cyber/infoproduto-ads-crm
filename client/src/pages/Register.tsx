@@ -14,6 +14,8 @@ export default function Register() {
     phone: "",
     cpf: "",
     email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +55,18 @@ export default function Register() {
       newErrors.email = "E-mail inválido";
     }
 
+    if (!formData.password.trim()) {
+      newErrors.password = "Senha é obrigatória";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Senha deve ter pelo menos 6 caracteres";
+    }
+
+    if (!formData.confirmPassword.trim()) {
+      newErrors.confirmPassword = "Confirmação de senha é obrigatória";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "As senhas não coincidem";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -84,6 +98,7 @@ export default function Register() {
         phone: formData.phone,
         cpf: formData.cpf,
         email: formData.email,
+        password: formData.password,
       });
     } finally {
       setIsSubmitting(false);
@@ -177,6 +192,42 @@ export default function Register() {
                 />
                 {errors.email && (
                   <p className="text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Senha */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Sua senha"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={errors.password ? "border-red-500" : ""}
+                />
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
+
+              {/* Confirmar Senha */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirme sua senha"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={errors.confirmPassword ? "border-red-500" : ""}
+                />
+                {errors.confirmPassword && (
+                  <p className="text-sm text-red-500">{errors.confirmPassword}</p>
                 )}
               </div>
 
