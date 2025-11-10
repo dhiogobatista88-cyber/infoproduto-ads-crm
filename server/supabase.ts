@@ -19,20 +19,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 /**
- * Converte um stream Readable em um Buffer.
- * @param stream O stream Readable a ser convertido.
- * @returns Uma Promise que resolve para o Buffer.
- */
-function streamToBuffer(stream: Readable): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    stream.on("data", (chunk) => chunks.push(chunk));
-    stream.on("error", reject);
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-  });
-}
-
-/**
  * Faz o upload de um stream para o Supabase Storage.
  * @param path O caminho do arquivo dentro do bucket.
  * @param body O stream Readable do conteúdo.
@@ -43,7 +29,13 @@ export async function uploadToSupabase(path: string, body: Readable) {
   
   try {
     // O Supabase Storage API espera um Buffer ou Blob, não um Stream.
-    const buffer = await streamToBuffer(body);
+    // Converte o stream para um Buffer antes de fazer o upload.
+    const buffer = await new Promise<Buffer>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      body.on("data", (chunk) => chunks.push(chunk));
+      body.on("error", reject);
+      body.on("end", () => resolve(Buffer.concat(chunks)));
+    });
 
     const { data, error } = await supabase.storage
       .from(SUPABASE_BUCKET_NAME)
