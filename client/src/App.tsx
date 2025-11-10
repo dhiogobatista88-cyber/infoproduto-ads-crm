@@ -11,6 +11,7 @@ import Subscription from "./pages/Subscription";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import DevLogin from "./pages/DevLogin";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/subscription/success"} component={SubscriptionSuccess} />
       <Route path={"/dev-login"} component={DevLogin} />
       <Route path={"/register"} component={Register} />
+      <Route path={"/login"} component={Login} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

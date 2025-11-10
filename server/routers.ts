@@ -59,6 +59,23 @@ export const appRouter = router({
         console.log("Novo cadastro:", input);
         return { success: true, message: "Cadastro realizado com sucesso!" };
       }),
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email("E-mail inválido"),
+        password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        console.log("Login attempt:", input.email);
+        
+        const sessionToken = await ctx.sdk.createSessionToken({
+          openId: `user-${input.email}`,
+          name: input.email.split("@")[0],
+        });
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+        return { success: true, user: { openId: `user-${input.email}`, name: input.email.split("@")[0] } };
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

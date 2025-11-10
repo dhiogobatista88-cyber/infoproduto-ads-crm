@@ -7,20 +7,18 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Sparkles } from "lucide-react";
 
-export default function Register() {
+export default function Login() {
   const [, setLocation] = useLocation();
   const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    cpf: "",
     email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const registerMutation = trpc.auth.register.useMutation({
+  const loginMutation = trpc.auth.login.useMutation({
     onSuccess: () => {
-      // Redireciona para o dashboard após o cadastro bem-sucedido
+      // Redireciona para o dashboard
       setLocation("/");
     },
     onError: (error) => {
@@ -31,26 +29,16 @@ export default function Register() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Nome completo é obrigatório";
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Telefone celular é obrigatório";
-    } else if (!/^\(\d{2}\)\s?\d{4,5}-\d{4}$/.test(formData.phone)) {
-      newErrors.phone = "Formato inválido. Use: (11) 99999-9999";
-    }
-
-    if (!formData.cpf.trim()) {
-      newErrors.cpf = "CPF é obrigatório";
-    } else if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(formData.cpf)) {
-      newErrors.cpf = "Formato inválido. Use: 123.456.789-00";
-    }
-
     if (!formData.email.trim()) {
       newErrors.email = "E-mail é obrigatório";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "E-mail inválido";
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = "Senha é obrigatória";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Senha deve ter pelo menos 6 caracteres";
     }
 
     setErrors(newErrors);
@@ -79,11 +67,9 @@ export default function Register() {
 
     setIsSubmitting(true);
     try {
-      await registerMutation.mutateAsync({
-        fullName: formData.fullName,
-        phone: formData.phone,
-        cpf: formData.cpf,
+      await loginMutation.mutateAsync({
         email: formData.email,
+        password: formData.password,
       });
     } finally {
       setIsSubmitting(false);
@@ -100,68 +86,14 @@ export default function Register() {
                 <Sparkles className="w-6 h-6 text-purple-600" />
               </div>
             </div>
-            <CardTitle className="text-2xl">Criar Conta</CardTitle>
+            <CardTitle className="text-2xl">Entrar na Conta</CardTitle>
             <CardDescription>
-              Preencha seus dados para começar a criar anúncios profissionais
+              Acesse sua conta para gerenciar seus anúncios
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Nome Completo */}
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nome Completo</Label>
-                <Input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  placeholder="João da Silva"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  className={errors.fullName ? "border-red-500" : ""}
-                />
-                {errors.fullName && (
-                  <p className="text-sm text-red-500">{errors.fullName}</p>
-                )}
-              </div>
-
-              {/* Telefone Celular */}
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone Celular</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="(11) 99999-9999"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  className={errors.phone ? "border-red-500" : ""}
-                />
-                {errors.phone && (
-                  <p className="text-sm text-red-500">{errors.phone}</p>
-                )}
-              </div>
-
-              {/* CPF */}
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF</Label>
-                <Input
-                  id="cpf"
-                  name="cpf"
-                  type="text"
-                  placeholder="123.456.789-00"
-                  value={formData.cpf}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  className={errors.cpf ? "border-red-500" : ""}
-                />
-                {errors.cpf && (
-                  <p className="text-sm text-red-500">{errors.cpf}</p>
-                )}
-              </div>
-
               {/* E-mail */}
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
@@ -180,6 +112,24 @@ export default function Register() {
                 )}
               </div>
 
+              {/* Senha */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Sua senha"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={errors.password ? "border-red-500" : ""}
+                />
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
+
               {/* Erro de Submissão */}
               {errors.submit && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-md">
@@ -191,23 +141,23 @@ export default function Register() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || registerMutation.isPending}
+                disabled={isSubmitting || loginMutation.isPending}
                 size="lg"
               >
-                {isSubmitting || registerMutation.isPending
-                  ? "Criando conta..."
-                  : "Criar Conta"}
+                {isSubmitting || loginMutation.isPending
+                  ? "Entrando..."
+                  : "Entrar"}
               </Button>
 
-              {/* Link para Login */}
+              {/* Link para Cadastro */}
               <p className="text-center text-sm text-muted-foreground mt-4">
-                Já tem uma conta?{" "}
+                Não tem uma conta?{" "}
                 <button
                   type="button"
-                  onClick={() => setLocation("/dev-login")}
+                  onClick={() => setLocation("/register")}
                   className="text-purple-600 hover:underline font-medium"
                 >
-                  Faça login
+                  Cadastre-se
                 </button>
               </p>
             </form>

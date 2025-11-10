@@ -62,8 +62,8 @@ export default function Home() {
                 </a>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-lg px-8">
-                <a href="#features">
-                  Saiba Mais
+                <a href="/login">
+                  Entrar
                 </a>
               </Button>
             </div>
