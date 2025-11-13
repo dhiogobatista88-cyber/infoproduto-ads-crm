@@ -21,7 +21,11 @@ export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const registerMutation = trpc.auth.register.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Salvar o token JWT no localStorage
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
       // Redireciona para o dashboard após o cadastro bem-sucedido
       setLocation("/");
     },

@@ -49,23 +49,54 @@ export const appRouter = router({
         password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
       }))
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.sdk) {
+        const { createUser, getUserByEmail, getUserByCpf } = await import('./dbAuth');
+        const { generateToken } = await import('./jwtUtils');
+        
+        // Verificar se o e-mail já está em uso
+        const existingUserByEmail = await getUserByEmail(input.email);
+        if (existingUserByEmail) {
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "SDK de autenticação não inicializado. Verifique a MANUS_API_KEY.",
+            code: "CONFLICT",
+            message: "Este e-mail já está cadastrado.",
           });
         }
-        // Aqui você pode salvar os dados do cadastro no banco de dados
-        // Por enquanto, apenas retornamos sucesso
-        // Quando o banco de dados estiver funcionando, você pode descomentar:
-        // await db.createUser({
-        //   name: input.fullName,
-        //   email: input.email,
-        //   phone: input.phone,
-        //   cpf: input.cpf,
-        // });
-        console.log("Novo cadastro:", input);
-        return { success: true, message: "Cadastro realizado com sucesso!" };
+        
+        // Verificar se o CPF já está em uso
+        const existingUserByCpf = await getUserByCpf(input.cpf);
+        if (existingUserByCpf) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Este CPF já está cadastrado.",
+          });
+        }
+        
+        // Criar o usuário no banco de dados
+        const userId = await createUser({
+          fullName: input.fullName,
+          email: input.email,
+          phone: input.phone,
+          cpf: input.cpf,
+          password: input.password,
+        });
+        
+        // Gerar token JWT
+        const token = generateToken({
+          userId,
+          email: input.email,
+          name: input.fullName,
+        });
+        
+        console.log("Novo cadastro:", input.email);
+        return { 
+          success: true, 
+          message: "Cadastro realizado com sucesso!",
+          token,
+          user: {
+            id: userId,
+            email: input.email,
+            name: input.fullName,
+          },
+        };
       }),
     login: publicProcedure
       .input(z.object({
@@ -73,22 +104,45 @@ export const appRouter = router({
         password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
       }))
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.sdk) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "SDK de autenticação não inicializado. Verifique a MANUS_API_KEY.",
-          });
-        }
+        const { getUserByEmail, verifyPassword } = await import('./dbAuth');
+        const { generateToken } = await import('./jwtUtils');
+        
         console.log("Login attempt:", input.email);
         
-        const sessionToken = await ctx.sdk.createSessionToken({
-          openId: `user-${input.email}`,
-          name: input.email.split("@")[0],
+        // Buscar usuário pelo e-mail
+        const user = await getUserByEmail(input.email);
+        if (!user) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "E-mail ou senha incorretos.",
+          });
+        }
+        
+        // Verificar senha
+        const isPasswordValid = await verifyPassword(input.password, user.passwordHash);
+        if (!isPasswordValid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "E-mail ou senha incorretos.",
+          });
+        }
+        
+        // Gerar token JWT
+        const token = generateToken({
+          userId: user.id,
+          email: user.email,
+          name: user.fullName,
         });
-        const cookieOptions = getSessionCookieOptions(ctx.req);
-        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-        return { success: true, user: { openId: `user-${input.email}`, name: input.email.split("@")[0] } };
+        return { 
+          success: true, 
+          token,
+          user: { 
+            id: user.id,
+            email: user.email, 
+            name: user.fullName,
+          },
+        };
       }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);

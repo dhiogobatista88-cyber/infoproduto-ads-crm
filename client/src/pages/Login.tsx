@@ -17,7 +17,11 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Salvar o token JWT no localStorage
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
       // Redireciona para o dashboard
       setLocation("/");
     },
