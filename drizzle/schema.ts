@@ -165,3 +165,4 @@ export const adMetrics = mysqlTable("ad_metrics", {
 
 export type AdMetric = typeof adMetrics.$inferSelect;
 export type InsertAdMetric = typeof adMetrics.$inferInsert;
+// Force rebuild Sat Nov 15 00:16:56 EST 2025
